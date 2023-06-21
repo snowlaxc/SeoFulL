@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SeoFulL</title>
+    <style>
+        /* 스타일을 추가하려면 여기에 작성하세요 */
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu-bar {
+            background-color: #C6E2FF;
+            height: 15vh;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }  
+
+        .menu-bar img {
+            height: 7.5vh;
+            margin-left: 2.2vw;
+        }
+
+        .content {
+            padding-top: 15vh;
+            height: 85vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .left-space {
+            width: 57vw;
+            height: 81vh;
+            padding: 2vh 1vw 2vh 2vw;
+        }
+
+        .graph-container {
+            width: 57vw;
+            height: 74.12vh;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+        }
+
+        .btn-group-left {
+            text-align: center;
+            margin-top: 1vh;
+        } 
+
+        .btn-group-left button {
+            height: 3vh;
+            width: 5vw;
+            margin: 1.5vh 0.5vw;
+            font-size: 1.5vh;
+        }
+
+        .right-space {
+            width: 40vw;
+            height: 81vh;
+            padding: 2vh 2vw 2vh 1vw;
+        }
+
+        .weather-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.7vh;
+        }
+
+        .weather-table th,
+        .weather-table td {
+            padding: 1vh;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .weather-table th {
+            background-color: #f1f1f1;
+        }
+
+        .weather-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .weather-table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .btn-group-right {
+            text-align: center;
+            margin-top: 1vh;
+        } 
+
+        .btn-group-right button {
+            height: 3vh;
+            width: 2vw;
+            margin: 1.5vh 0.5vw;
+            font-size: 1.5vh;
+        }
+
+        
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="./main">
+          <img src="{{ url_for('static', filename='images/SeoFulL_logo_0.png') }}" alt="SeoFulL_로고_0">
+        </a>
+    </div>
+
+    <div class="content">
+        <div class="left-space">
+            <div class="graph-container" id="graph1" style="margin-bottom: 0;"></div>
+            <div class="graph-container" id="graph2" style="display: none; margin-bottom: 0;"></div>
+            <div class="graph-container" id="graph3" style="display: none; margin-bottom: 0;"></div>
+            <div class="graph-container" id="graph4" style="display: none; margin-bottom: 0;"></div>
+            <div class="btn-group-left">
+                <button id="btn1" onclick="showGraph(1)">온도</button>
+                <button id="btn2" onclick="showGraph(2)">습도</button>
+                <button id="btn3" onclick="showGraph(3)">풍속</button>
+                <button id="btn4" onclick="showGraph(4)">강우량</button>
+            </div>
+        </div>
+        <div class="right-space">
+            <table class="weather-table" id="table1">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>온도(°C)</th>
+                        <th>습도(%)</th>
+                        <th>풍속(m/s)</th>
+                        <th>강우량(mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, data in row[0:16].iterrows() %}
+                    <tr>
+                        <td>{{ data['dt1'] }}</td>
+                        <td>{{ data['temp'] }}</td>
+                        <td>{{ data['humidity'] }}</td>
+                        <td>{{ data['wind'] }}</td>
+                        <td>{{ data['rain'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table class="weather-table" id="table2" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>온도(°C)</th>
+                        <th>습도(%)</th>
+                        <th>풍속(m/s)</th>
+                        <th>강우량(mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, data in row[16:32].iterrows() %}
+                    <tr>
+                        <td>{{ data['dt1'] }}</td>
+                        <td>{{ data['temp'] }}</td>
+                        <td>{{ data['humidity'] }}</td>
+                        <td>{{ data['wind'] }}</td>
+                        <td>{{ data['rain'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table class="weather-table" id="table3" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>온도(°C)</th>
+                        <th>습도(%)</th>
+                        <th>풍속(m/s)</th>
+                        <th>강우량(mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, data in row[32:48].iterrows() %}
+                    <tr>
+                        <td>{{ data['dt1'] }}</td>
+                        <td>{{ data['temp'] }}</td>
+                        <td>{{ data['humidity'] }}</td>
+                        <td>{{ data['wind'] }}</td>
+                        <td>{{ data['rain'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="btn-group-right">
+                <button id="btn1" onclick="showTable(1)">1</button>
+                <button id="btn2" onclick="showTable(2)">2</button>
+                <button id="btn3" onclick="showTable(3)">3</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 데이터셋 생성 (data['dt']와 data['temp']를 사용)
+        var data1 = [
+            {
+                x: [
+                    {% for index, data in row.iterrows() %}
+                    "{{ data['dt2'] }}",
+                    {% endfor %}
+                ],  // 가로축 데이터
+                y: [
+                    {% for index, data in row.iterrows() %}
+                    {{ data['temp'] }},
+                    {% endfor %}
+                ], // 세로축 데이터
+                type: 'scatter'  // 선 그래프 사용
+            }
+        ];
+
+        // 그래프 레이아웃 설정
+        var layout1 = {
+            title: '온도(°C)'
+        };
+
+        // 그래프 그리기
+        Plotly.newPlot('graph1', data1, layout1);
+    </script>
+    
+    <script>
+        // 데이터셋 생성 (data['dt']와 data['humidity']를 사용)
+        var data2 = [
+            {
+                x: [
+                    {% for index, data in row.iterrows() %}
+                    "{{ data['dt2'] }}",
+                    {% endfor %}
+                ],  // 가로축 데이터
+                y: [
+                    {% for index, data in row.iterrows() %}
+                    {{ data['humidity'] }},
+                    {% endfor %}
+                ], // 세로축 데이터
+                type: 'scatter'  // 선 그래프 사용
+            }
+        ];
+
+        // 그래프 레이아웃 설정
+        var layout2 = {
+            title: '습도(%)'
+        };
+
+        // 그래프 그리기
+        Plotly.newPlot('graph2', data2, layout2);
+    </script>
+
+    <script>
+        // 데이터셋 생성 (data['dt']와 data['wind']를 사용)
+        var data3 = [
+            {
+                x: [
+                    {% for index, data in row.iterrows() %}
+                    "{{ data['dt2'] }}",
+                    {% endfor %}
+                ],  // 가로축 데이터
+                y: [
+                    {% for index, data in row.iterrows() %}
+                    {{ data['wind'] }},
+                    {% endfor %}
+                ], // 세로축 데이터
+                type: 'scatter'  // 선 그래프 사용
+            }
+        ];
+
+        // y 값들의 배열 생성
+        var y = data3[0].y;
+
+        // 그래프 레이아웃 설정
+        var layout3 = {
+           title: '풍속(m/s)',
+           yaxis: {range: [0, Math.max(...y)+0.5]}
+        };
+
+        // 그래프 그리기
+        Plotly.newPlot('graph3', data3, layout3);
+    </script>
+
+    <script>
+        // 데이터셋 생성 (data['dt']와 data['rain']를 사용)
+        var data4 = [
+            {
+                x: [
+                    {% for index, data in row.iterrows() %}
+                    "{{ data['dt2'] }}",
+                    {% endfor %}
+                ],  // 가로축 데이터
+                y: [
+                    {% for index, data in row.iterrows() %}
+                    {{ data['rain'] }},
+                    {% endfor %}
+                ], // 세로축 데이터
+                type: 'scatter'  // 선 그래프 사용
+            }
+        ];
+
+        // y 값들의 배열 생성
+        var y = data4[0].y;
+
+        // 그래프 레이아웃 설정
+        var layout4 = {
+            title: '강우량(mm)',
+            yaxis: {range: [0, Math.max(...y)+0.5]}
+        };
+
+        // 그래프 그리기
+        Plotly.newPlot('graph4', data4, layout4);
+    </script>
+
+    <script>
+        function showTable(tableNumber) {
+            // 모든 표 숨기기
+            var tables = document.getElementsByClassName("weather-table");
+            for (var i = 0; i < tables.length; i++) {
+                tables[i].style.display = "none";
+            }
+
+            // 선택한 표만 보이기
+            var selectedTable = document.getElementById("table" + tableNumber);
+            if (selectedTable) {
+                selectedTable.style.display = "table";
+            }
+        }
+
+        // 초기에 첫 번째 표만 보이도록 설정
+        showTable(1);
+    </script>
+
+    <script>
+        function showGraph(graphNumber) {
+        var graphId = 'graph' + graphNumber;
+
+        // 모든 그래프 숨기기
+        for (var i = 1; i <= 4; i++) {
+            var otherGraphId = 'graph' + i;
+            document.getElementById(otherGraphId).style.display = 'none';
+        }
+
+        // 선택한 그래프 표시
+        document.getElementById(graphId).style.display = 'block';
+    }
+
+        // 초기에 첫 번째 표만 보이도록 설정
+        showGraph(1);
+    </script>
+
+</body>
+</html>

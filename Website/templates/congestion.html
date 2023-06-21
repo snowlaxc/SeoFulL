@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SeoFulL</title>
+  <style>
+    body{
+        font-family: Arial, sans-serif;
+        height: 100vh;
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+    }
+
+    .menu-bar {
+        background-color: #C6E2FF;
+        height: 15vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+    }  
+
+    .menu-bar img {
+        height: 7.5vh;
+        margin-right: 2.2vw;
+        margin-left: 2.2vw;
+    }
+
+    .content {
+        padding-top: 15vh;
+        height: 85vh;
+        display: flex;
+        justify-content: center;
+    }
+
+    #weather {
+        width: calc(100vw / 5.5);
+        padding: 1.5vw;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    #weather .input-container {
+        display: flex;
+        align-items: center;
+    }
+
+    #weather .input-container input {
+        margin-right: 0.5vw;
+        padding: 0.8vh;
+    }
+
+    #weather .input-container button {
+        padding: 0.8vh 0.5vw;
+    }
+
+    #weather img {
+        width: calc(100vw / 5.7);
+        
+    }
+
+    #map {
+        flex-grow: 1;
+        height: 100%;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // 사용자가 제출 버튼을 클릭했을 때 호출되는 함수
+    function handleSubmit() {
+        var inputValue = parseInt(document.getElementById('input-value').value);
+        if (!isNaN(inputValue) && inputValue >= 0 && inputValue <= 47) {
+            window.location.href = "../congestion/" + inputValue;
+        } else {
+            alert("0~47 사이의 정수를 입력해주세요!");
+        }
+    }
+  </script>
+  <script>
+    function redirectToWeather() {
+        window.location.href = "../weather";
+    }
+  </script>
+
+</head>
+<body>
+  <div class="menu-bar">
+    <a href="../">
+      <img src="{{ url_for('static', filename='images/SeoFulL_logo_0.png') }}" alt="SeoFulL_로고_0">
+    </a>
+  </div>
+
+  <div class="content">
+    <div id="weather" style="display: flex;">
+        <div style="flex: 1;">
+            <p style="font-size: 3.5vh; margin-top: 0; margin-bottom: 3vh; font-weight: bold;">{{ data1['dt'] }} 기준</p>
+                <div style="display: flex;">
+                    <p style="font-size: 2.85vh; margin-top: 0; margin-bottom: 0.25vh; font-weight: bold;">기상 예보</p>
+                        <div id="button" style="margin-top: 0; margin-left: 2vw;">
+                          <button onclick="redirectToWeather()" style = "height: 4vh; font-size: 0.8vw;">전체 날씨 보기</button>
+                        </div>
+                 </div>
+            <p style="font-size: 2.3vh; margin-top: 0; margin-bottom: 0.25vh;">기온: {{ data1['temperature'] }}°C</p>
+            <p style="font-size: 2.3vh; margin-top: 0; margin-bottom: 0.25vh;">습도: {{ data1['humidity'] }}%</p>
+            <p style="font-size: 2.3vh; margin-top: 0; margin-bottom: 0.25vh;">풍속: {{ data1['wind_speed'] }}m/s</p>
+            <p style="font-size: 2.3vh; margin-top: 0; margin-bottom: 3vh;">강우량: {{ data1['rain'] }}mm</p>
+        
+        
+        
+            <div class="message">
+                <p style="font-size: 2.85vh; margin-top: 0; margin-bottom: 1vh; font-weight: bold;">
+                    다른 시간도 확인해보세요!
+                </p>
+            </div>
+
+            <div class="input-container">
+                <input type="text" id="input-value" placeholder="0~47(시간)을 작성해주세요" style="width: 12vw; height: 2vh; font-size: 0.8vw;" onkeydown="if(event.keyCode===13) handleSubmit()"/>
+                <button onclick="handleSubmit()" style="width: 3vw; height: 4vh; font-size: 0.8vw;">제출</button>
+            </div>
+
+            <p style="font-size: 2.8vh; margin-top: 3vh; margin-bottom: 0.25vh; font-weight: bold;">쾌적한 행정구</p>
+            <p style="font-size: 2.1vh; margin-top: 0vh; margin-bottom: 1vh;">{{ hansan_gu }}</p>
+            <p style="font-size: 2.8vh; margin-top: 1vh; margin-bottom: 0.25vh; font-weight: bold;">혼잡한 행정구</p>
+            <p style="font-size: 2.1vh; margin-top: 0vh; margin-bottom: 3vh;">{{ honzap_gu }}</p>
+
+            <img src="{{ url_for('static', filename='images/congestion_info.png') }}" alt="cong_info">
+        </div>
+    </div>
+    
+    <div id="map"></div>
+  </div>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=a7e9c748460e9bf134a562093566e8ae"></script>
+  <script>
+      // 지도에 폴리곤으로 표시할 영역데이터 배열입니다
+    var areas = [						
+        {					
+            name : '강동구',
+            gu_code : 11740,
+            people : {{ new_data['people'][24] }},
+            cong_info : '{{ new_data['cong_info'][24] }}',
+            cong : {{ new_data['cong'][24] }},
+            path : [				
+                new kakao.maps.LatLng(37.557533180704915,127.1151958),
+                new kakao.maps.LatLng(37.540669955324965,127.1116764),
+                new kakao.maps.LatLng(37.52528270089,127.1212317),
+                new kakao.maps.LatLng(37.51415680680291,127.1467281),
+                new kakao.maps.LatLng(37.55814280369575,127.1840879),
+                new kakao.maps.LatLng(37.57672487388627,127.1668318),
+                new kakao.maps.LatLng(37.55753318,127.1151958)
+            ]				
+        }, {					
+            name : '송파구', 				
+            gu_code : 11710,
+            people : {{ new_data['people'][23] }},
+            cong_info : '{{ new_data['cong_info'][23] }}',
+            path : [	
+                new kakao.maps.LatLng(37.522279423505026,127.0690698),
+                new kakao.maps.LatLng(37.50224013587669,127.0719146),
+                new kakao.maps.LatLng(37.485708381512445,127.1111709),
+                new kakao.maps.LatLng(37.46240445587048,127.1244057),
+                new kakao.maps.LatLng(37.47089819098501,127.1420606),
+                new kakao.maps.LatLng(37.497445406097484,127.1634944),
+                new kakao.maps.LatLng(37.51415680680291,127.1467281),
+                new kakao.maps.LatLng(37.52528270089,127.1212317),
+                new kakao.maps.LatLng(37.540669955324965,127.1116764),
+                new kakao.maps.LatLng(37.524841220167055,127.1008752),
+                new kakao.maps.LatLng(37.52227942,127.0690698)
+            ]				
+        }, {					
+            name : '강남구', 				
+            gu_code : 11680,
+            people : {{ new_data['people'][22] }},
+            cong_info : '{{ new_data['cong_info'][22] }}',
+            path : [
+                new kakao.maps.LatLng(37.52629974922568,127.0586736),
+                new kakao.maps.LatLng(37.53231899582663,127.0230283),
+                new kakao.maps.LatLng(37.52503988289669,127.0139712),
+                new kakao.maps.LatLng(37.48175802427603,127.0362192),
+                new kakao.maps.LatLng(37.4659228914077,127.055917),
+                new kakao.maps.LatLng(37.472697935184655,127.0864044),
+                new kakao.maps.LatLng(37.45862253857461,127.0984276),
+                new kakao.maps.LatLng(37.46240445587048,127.1244057),
+                new kakao.maps.LatLng(37.485708381512445,127.1111709),
+                new kakao.maps.LatLng(37.50224013587669,127.0719146),
+                new kakao.maps.LatLng(37.522279423505026,127.0690698),
+                new kakao.maps.LatLng(37.52629975,127.0586736)
+            ]				
+        }, {					
+            name : '서초구', 				
+            gu_code : 11650,
+            people : {{ new_data['people'][21] }},
+            cong_info : '{{ new_data['cong_info'][21] }}',
+            path : [
+                new kakao.maps.LatLng(37.52503988289669,127.0139712),
+                new kakao.maps.LatLng(37.509314966770326,126.9822381),
+                new kakao.maps.LatLng(37.473856492692086,126.9836767),
+                new kakao.maps.LatLng(37.455326143310025,126.9907207),
+                new kakao.maps.LatLng(37.45382039851715,127.0388178),
+                new kakao.maps.LatLng(37.42805836845694,127.0495723),
+                new kakao.maps.LatLng(37.426197424057314,127.0677811),
+                new kakao.maps.LatLng(37.45862253857461,127.0984276),
+                new kakao.maps.LatLng(37.472697935184655,127.0864044),
+                new kakao.maps.LatLng(37.4659228914077,127.055917),
+                new kakao.maps.LatLng(37.48175802427603,127.0362192),
+                new kakao.maps.LatLng(37.52503988,127.0139712)
+            ]				
+        }, {					
+            name : '관악구', 				
+            gu_code : 11620,
+            people : {{ new_data['people'][20] }},
+            cong_info : '{{ new_data['cong_info'][20] }}',
+            path : [
+                new kakao.maps.LatLng(37.473856492692086,126.9836767),
+                new kakao.maps.LatLng(37.49125437495649,126.9492266),
+                new kakao.maps.LatLng(37.48218087575429,126.9053198),
+                new kakao.maps.LatLng(37.47753842789901,126.9015609),
+                new kakao.maps.LatLng(37.447382928333994,126.9308441),
+                new kakao.maps.LatLng(37.438249784006246,126.9652044),
+                new kakao.maps.LatLng(37.455326143310025,126.9907207),
+                new kakao.maps.LatLng(37.47385649,126.9836767)
+            ]				
+        }, {					
+            name : '동작구', 				
+            gu_code : 11590,
+            people : {{ new_data['people'][19] }},
+            cong_info : '{{ new_data['cong_info'][19] }}',
+            path : [
+                new kakao.maps.LatLng(37.509314966770326,126.9822381),
+                new kakao.maps.LatLng(37.51722500741813,126.9524999),
+                new kakao.maps.LatLng(37.51329595732015,126.9281063),
+                new kakao.maps.LatLng(37.48218087575429,126.9053198),
+                new kakao.maps.LatLng(37.49125437495649,126.9492266),
+                new kakao.maps.LatLng(37.473856492692086,126.9836767),
+                new kakao.maps.LatLng(37.50931497,126.9822381)
+            ]				
+        }, {					
+            name : '영등포구', 				
+            gu_code : 11560,
+            people : {{ new_data['people'][18] }},
+            cong_info : '{{ new_data['cong_info'][18] }}',
+            path : [
+                new kakao.maps.LatLng(37.547373974997114,126.8918466),
+                new kakao.maps.LatLng(37.54079733630232,126.8882576),
+                new kakao.maps.LatLng(37.513970034765684,126.881564),
+                new kakao.maps.LatLng(37.48218087575429,126.9053198),
+                new kakao.maps.LatLng(37.51329595732015,126.9281063),
+                new kakao.maps.LatLng(37.51722500741813,126.9524999),
+                new kakao.maps.LatLng(37.526617542453366,126.9456673),
+                new kakao.maps.LatLng(37.54737397,126.8918466)
+            ]				
+        }, {					
+            name : '금천구', 				
+            gu_code : 11545,
+            people : {{ new_data['people'][17] }},
+            cong_info : '{{ new_data['cong_info'][17] }}',
+            path : [				
+                new kakao.maps.LatLng(37.47753842789901,126.9015609),
+                new kakao.maps.LatLng(37.482576591607305,126.8768327),
+                new kakao.maps.LatLng(37.434549366349124,126.9025832),
+                new kakao.maps.LatLng(37.447382928333994,126.9308441),
+                new kakao.maps.LatLng(37.47753843,126.9015609)
+            ]				
+        }, {					
+            name : '구로구', 				
+            gu_code : 11530,
+            people : {{ new_data['people'][16] }},
+            cong_info : '{{ new_data['cong_info'][16] }}',
+            path : [				
+                new kakao.maps.LatLng(37.50548972232896,126.8268808),
+                new kakao.maps.LatLng(37.4878476492147,126.822648),
+                new kakao.maps.LatLng(37.47146723936323,126.8476268),
+                new kakao.maps.LatLng(37.482576591607305,126.8768327),
+                new kakao.maps.LatLng(37.47753842789901,126.9015609),
+                new kakao.maps.LatLng(37.48218087575429,126.9053198),
+                new kakao.maps.LatLng(37.513970034765684,126.881564),
+                new kakao.maps.LatLng(37.50548972,126.8268808)
+            ]				
+        }, {					
+            name : '강서구', 				
+            gu_code : 11500,
+            people : {{ new_data['people'][15] }},
+            cong_info : '{{ new_data['cong_info'][15] }}',
+            path : [				
+                new kakao.maps.LatLng(37.571847855292745,126.859842),
+                new kakao.maps.LatLng(37.60123001013228,126.8070212),
+                new kakao.maps.LatLng(37.5459123450554,126.7732442),
+                new kakao.maps.LatLng(37.53788078753248,126.8242331),
+                new kakao.maps.LatLng(37.52373707805596,126.8425729),
+                new kakao.maps.LatLng(37.54079733630232,126.8882576),
+                new kakao.maps.LatLng(37.547373974997114,126.8918466),
+                new kakao.maps.LatLng(37.57184786,126.859842)
+            ]				
+        }, {					
+            name : '양천구', 				
+            gu_code : 11470,
+            people : {{ new_data['people'][14] }},
+            cong_info : '{{ new_data['cong_info'][14] }}',
+            path : [	
+                new kakao.maps.LatLng(37.53788078753248,126.8242331),
+                new kakao.maps.LatLng(37.50548972232896,126.8268808),
+                new kakao.maps.LatLng(37.513970034765684,126.881564),
+                new kakao.maps.LatLng(37.54079733630232,126.8882576),
+                new kakao.maps.LatLng(37.52373707805596,126.8425729),
+                new kakao.maps.LatLng(37.53788079,126.8242331)
+            ]				
+        }, {					
+            name : '마포구', 				
+            gu_code : 11440,
+            people : {{ new_data['people'][13] }},
+            cong_info : '{{ new_data['cong_info'][13] }}',
+            path : [				
+                new kakao.maps.LatLng(37.57409700522574,126.9052207),
+                new kakao.maps.LatLng(37.588143322880526,126.8843328),
+                new kakao.maps.LatLng(37.571847855292745,126.859842),
+                new kakao.maps.LatLng(37.547373974997114,126.8918466),
+                new kakao.maps.LatLng(37.526617542453366,126.9456673),
+                new kakao.maps.LatLng(37.548705692021635,126.9644857),
+                new kakao.maps.LatLng(37.55605635475154,126.9635823),
+                new kakao.maps.LatLng(37.552310003728124,126.9389816),
+                new kakao.maps.LatLng(37.57409701,126.9052207)
+            ]				
+        }, {					
+            name : '서대문구', 				
+            gu_code : 11410,
+            people : {{ new_data['people'][12] }},
+            cong_info : '{{ new_data['cong_info'][12] }}',
+            path : [				
+                new kakao.maps.LatLng(37.60508692737045,126.9524752),
+                new kakao.maps.LatLng(37.57409700522574,126.9052207),
+                new kakao.maps.LatLng(37.552310003728124,126.9389816),
+                new kakao.maps.LatLng(37.55605635475154,126.9635823),
+                new kakao.maps.LatLng(37.56313604690827,126.9687363),
+                new kakao.maps.LatLng(37.576080790881456,126.9556543),
+                new kakao.maps.LatLng(37.60508693,126.9524752)
+            ]				
+        }, {					
+            name : '은평구', 				
+            gu_code : 11380,
+            people : {{ new_data['people'][11] }},
+            cong_info : '{{ new_data['cong_info'][11] }}',
+            path : [				
+                new kakao.maps.LatLng(37.62949634786888,126.9738864),
+                new kakao.maps.LatLng(37.652480737339445,126.9564738),
+                new kakao.maps.LatLng(37.64150050996935,126.9145548),
+                new kakao.maps.LatLng(37.59227403419942,126.9039668),
+                new kakao.maps.LatLng(37.588143322880526,126.8843328),
+                new kakao.maps.LatLng(37.57409700522574,126.9052207),
+                new kakao.maps.LatLng(37.60508692737045,126.9524752),
+                new kakao.maps.LatLng(37.62949635,126.9738864)
+            ]				
+        }, {					
+            name : '노원구', 				
+            gu_code : 11350,
+            people : {{ new_data['people'][10] }},
+            cong_info : '{{ new_data['cong_info'][10] }}',
+            path : [				
+                new kakao.maps.LatLng(37.61804244241069,127.1078228),
+                new kakao.maps.LatLng(37.639622905315925,127.113268),
+                new kakao.maps.LatLng(37.64713490473045,127.0944077),
+                new kakao.maps.LatLng(37.686383719372294,127.0970639),
+                new kakao.maps.LatLng(37.69359534202034,127.0838753),
+                new kakao.maps.LatLng(37.68423857084347,127.0528848),
+                new kakao.maps.LatLng(37.64318263878276,127.0580008),
+                new kakao.maps.LatLng(37.62848931298715,127.043588),
+                new kakao.maps.LatLng(37.62164065487782,127.0520937),
+                new kakao.maps.LatLng(37.61283660342313,127.0735124),
+                new kakao.maps.LatLng(37.61804244,127.1078228)
+            ]				
+        }, {					
+            name : '도봉구', 				
+            gu_code : 11320,
+            people : {{ new_data['people'][9] }},
+            cong_info : '{{ new_data['cong_info'][9] }}',
+            path : [				
+                new kakao.maps.LatLng(37.68423857084347,127.0528848),
+                new kakao.maps.LatLng(37.69824412775662,127.017951),
+                new kakao.maps.LatLng(37.681894589603594,127.0103967),
+                new kakao.maps.LatLng(37.64943687496812,127.0146594),
+                new kakao.maps.LatLng(37.62848931298715,127.043588),
+                new kakao.maps.LatLng(37.64318263878276,127.0580008),
+                new kakao.maps.LatLng(37.68423857,127.0528848)
+            ]				
+        }, {					
+            name : '강북구', 				
+            gu_code : 11305,
+            people : {{ new_data['people'][8] }},
+            cong_info : '{{ new_data['cong_info'][8] }}',
+            path : [				
+                new kakao.maps.LatLng(37.681894589603594,127.0103967),
+                new kakao.maps.LatLng(37.676681761199085,126.993839),
+                new kakao.maps.LatLng(37.65209769387776,126.9817453),
+                new kakao.maps.LatLng(37.63377641288196,126.9867271),
+                new kakao.maps.LatLng(37.613652243470256,127.0128155),
+                new kakao.maps.LatLng(37.609715611023816,127.038924),
+	    		new kakao.maps.LatLng(37.62164065487782,127.0520937),
+	    		new kakao.maps.LatLng(37.62848931298715,127.043588),
+	    		new kakao.maps.LatLng(37.64943687496812,127.0146594),
+	    		new kakao.maps.LatLng(37.68189459,127.0103967)
+	    	]				
+	    }, {					
+	    	name : '성북구', 				
+            gu_code : 11290,
+            people : {{ new_data['people'][7] }},
+            cong_info : '{{ new_data['cong_info'][7] }}',
+	    	path : [				
+	    		new kakao.maps.LatLng(37.62859715400388,126.9771754),
+	    		new kakao.maps.LatLng(37.588565457216156,126.9934829),
+	    		new kakao.maps.LatLng(37.57524616245249,127.0252725),
+	    		new kakao.maps.LatLng(37.59239437593391,127.0427052),
+	    		new kakao.maps.LatLng(37.60401928986419,127.0738271),
+	    		new kakao.maps.LatLng(37.61283660342313,127.0735124),
+	    		new kakao.maps.LatLng(37.62164065487782,127.0520937),
+	    		new kakao.maps.LatLng(37.609715611023816,127.038924),
+	    		new kakao.maps.LatLng(37.613652243470256,127.0128155),
+	    		new kakao.maps.LatLng(37.63377641288196,126.9867271),
+	    		new kakao.maps.LatLng(37.62859715,126.9771754)
+	    	]				
+	    }, {					
+	    	name : '중랑구', 				
+            gu_code : 11260,
+            people : {{ new_data['people'][6] }},
+            cong_info : '{{ new_data['cong_info'][6] }}',
+	    	path : [				
+	    		new kakao.maps.LatLng(37.61283660342313,127.0735124),
+	    		new kakao.maps.LatLng(37.60401928986419,127.0738271),
+	    		new kakao.maps.LatLng(37.56906425519017,127.0806854),
+	    		new kakao.maps.LatLng(37.57076342290955,127.1030417),
+	    		new kakao.maps.LatLng(37.60178457598188,127.1201246),
+	    		new kakao.maps.LatLng(37.61804244241069,127.1078228),
+	    		new kakao.maps.LatLng(37.6128366,127.0735124)
+	    	]				
+	    }, {					
+	    	name : '동대문구', 				
+            gu_code : 11230,
+            people : {{ new_data['people'][5] }},
+            cong_info : '{{ new_data['cong_info'][5] }}',
+	    	path : [				
+	    		new kakao.maps.LatLng(37.57524616245249,127.0252725),
+	    		new kakao.maps.LatLng(37.568943552237734,127.0254727),
+    			new kakao.maps.LatLng(37.55724769712085,127.0742105),
+    			new kakao.maps.LatLng(37.56906425519017,127.0806854),
+    			new kakao.maps.LatLng(37.60401928986419,127.0738271),
+    			new kakao.maps.LatLng(37.59239437593391,127.0427052),
+    			new kakao.maps.LatLng(37.57524616,127.0252725)
+    		]				
+    	}, {					
+    		name : '광진구', 				
+            gu_code : 11215,
+            people : {{ new_data['people'][4] }},
+            cong_info : '{{ new_data['cong_info'][4] }}',
+    		path : [				
+    			new kakao.maps.LatLng(37.56906425519017,127.0806854),
+    			new kakao.maps.LatLng(37.55724769712085,127.0742105),
+    			new kakao.maps.LatLng(37.52629974922568,127.0586736),
+    			new kakao.maps.LatLng(37.522279423505026,127.0690698),
+    			new kakao.maps.LatLng(37.524841220167055,127.1008752),
+        		new kakao.maps.LatLng(37.540669955324965,127.1116764),
+    			new kakao.maps.LatLng(37.557533180704915,127.1151958),
+    			new kakao.maps.LatLng(37.57076342290955,127.1030417),
+    			new kakao.maps.LatLng(37.56906426,127.0806854)
+    		]				
+    	}, {					
+    		name : '성동구', 				
+            gu_code : 11200,
+            people : {{ new_data['people'][3] }},
+            cong_info : '{{ new_data['cong_info'][3] }}',
+    		path : [				
+    			new kakao.maps.LatLng(37.568943552237734,127.0254727),
+    			new kakao.maps.LatLng(37.54118048964762,127.0107089),
+    			new kakao.maps.LatLng(37.53231899582663,127.0230283),
+    			new kakao.maps.LatLng(37.52629974922568,127.0586736),
+    			new kakao.maps.LatLng(37.55724769712085,127.0742105),
+    			new kakao.maps.LatLng(37.56894355,127.0254727)
+    		]				
+    	}, {					
+    		name : '용산구', 				
+            gu_code : 11170,
+            people : {{ new_data['people'][2] }},
+            cong_info : '{{ new_data['cong_info'][2] }}',
+    		path : [				
+    			new kakao.maps.LatLng(37.54118048964762,127.0107089),
+    			new kakao.maps.LatLng(37.55094818807139,126.98753),
+    			new kakao.maps.LatLng(37.548705692021635,126.9644857),
+    			new kakao.maps.LatLng(37.526617542453366,126.9456673),
+    			new kakao.maps.LatLng(37.51722500741813,126.9524999),
+    			new kakao.maps.LatLng(37.509314966770326,126.9822381),
+    			new kakao.maps.LatLng(37.52503988289669,127.0139712),
+    			new kakao.maps.LatLng(37.53231899582663,127.0230283),
+    			new kakao.maps.LatLng(37.54118049,127.0107089)
+    		]				
+    	}, {					
+    		name : '중구', 				
+            gu_code : 11140,
+            people : {{ new_data['people'][1] }},
+            cong_info : '{{ new_data['cong_info'][1] }}',
+    		path : [				
+    			new kakao.maps.LatLng(37.568943552237734,127.0254727),
+    			new kakao.maps.LatLng(37.56313604690827,126.9687363),
+    			new kakao.maps.LatLng(37.55605635475154,126.9635823),
+    			new kakao.maps.LatLng(37.548705692021635,126.9644857),
+    			new kakao.maps.LatLng(37.55094818807139,126.98753),
+    			new kakao.maps.LatLng(37.54118048964762,127.0107089),
+    			new kakao.maps.LatLng(37.56894355,127.0254727)
+    		]				
+    	}, {					
+    		name : '종로구', 				
+            gu_code : 11110,
+            people : {{ new_data['people'][0] }},
+            cong_info : '{{ new_data['cong_info'][0] }}',
+    		path : [				
+    			new kakao.maps.LatLng(37.62949634786888,126.9738864),
+    			new kakao.maps.LatLng(37.60508692737045,126.9524752),
+    			new kakao.maps.LatLng(37.576080790881456,126.9556543),
+    			new kakao.maps.LatLng(37.56313604690827,126.9687363),
+    			new kakao.maps.LatLng(37.568943552237734,127.0254727),
+    			new kakao.maps.LatLng(37.57524616245249,127.0252725),
+    			new kakao.maps.LatLng(37.588565457216156,126.9934829),
+    			new kakao.maps.LatLng(37.62859715400388,126.9771754),
+    			new kakao.maps.LatLng(37.62949635,126.9738864)
+    		]				
+    	}					
+    ];
+    
+    					
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+      mapOption = {
+        center: new kakao.maps.LatLng(37.5642135, 127.0016985), // 지도의 중심좌표
+        // draggable: false, // 지도 이동, 확대 및 축소 금지
+        level: 9 // 지도의 확대 레벨
+      };
+
+    var map = new kakao.maps.Map(mapContainer, mapOption),
+      customOverlay = new kakao.maps.CustomOverlay({}),
+      infowindow = new kakao.maps.InfoWindow({ removable: true });
+
+
+
+    // 지도에 영역데이터를 폴리곤으로 표시합니다
+    for (var i = 0, len = areas.length; i < len; i++) {
+      displayArea(areas[i]);
+    }
+
+    // 다각형을 생상하고 이벤트를 등록하는 함수입니다
+    function displayArea(area) {
+      // 다각형을 생성합니다
+
+      if(area.cong_info == '매우 혼잡'){
+        var polygon = new kakao.maps.Polygon({
+        map: map, // 다각형을 표시할 지도 객체
+        path: area.path,
+        strokeWeight: 3,
+        strokeColor: 'black',
+        strokeOpacity: 0.8,
+        fillColor: 'red',
+        fillOpacity: 0.5
+      });
+      }
+      if(area.cong_info == '혼잡'){
+        var polygon = new kakao.maps.Polygon({
+        map: map, // 다각형을 표시할 지도 객체
+        path: area.path,
+        strokeWeight: 3,
+        strokeColor: 'black',
+        strokeOpacity: 0.8,
+        fillColor: 'orange',
+        fillOpacity: 0.5
+      });
+      }
+      if(area.cong_info == '보통'){
+        var polygon = new kakao.maps.Polygon({
+        map: map, // 다각형을 표시할 지도 객체
+        path: area.path,
+        strokeWeight: 3,
+        strokeColor: 'black',
+        strokeOpacity: 0.8,
+        fillColor: 'yellow',
+        fillOpacity: 0.5
+      });
+      }
+      if(area.cong_info == '한산'){
+        var polygon = new kakao.maps.Polygon({
+        map: map, // 다각형을 표시할 지도 객체
+        path: area.path,
+        strokeWeight: 3,
+        strokeColor: 'black',
+        strokeOpacity: 0.8,
+        fillColor: 'green',
+        fillOpacity: 0.5
+      });
+      }
+      if(area.cong_info == '매우 한산'){
+        var polygon = new kakao.maps.Polygon({
+        map: map, // 다각형을 표시할 지도 객체
+        path: area.path,
+        strokeWeight: 3,
+        strokeColor: 'black',
+        strokeOpacity: 0.8,
+        fillColor: 'blue',
+        fillOpacity: 0.5
+      });
+      }
+        
+        
+      kakao.maps.event.addListener(polygon, 'click', function (mouseEvent) {
+        var content =
+              '<div class="title" style="font-weight:bold;">' + area.name + '</div>' +
+              '<div class="people">' + area.people + '명 예상' +'</div>';
+
+        infowindow.setContent(content);
+        infowindow.setPosition(mouseEvent.latLng);
+        infowindow.setMap(map);
+      });
+    }
+
+  </script>
+</body>
+</html>

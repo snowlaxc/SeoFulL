@@ -1,0 +1,6 @@
+{
+    "host" : "127.0.0.1",
+    "port" : {{port_number}},
+    "user" : "{{user_id}}",
+    "password" : "{{user_passwd}}"
+}

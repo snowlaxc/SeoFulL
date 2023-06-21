@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SeoFulL</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color : #C6E2FF;
+    }
+    .logo {
+      margin-bottom: 3vh;
+    }
+    .sub-heading1 {
+      font-size: 3vh;
+      margin-bottom: 0.5vh;
+      font-weight: bold;
+    }
+    .sub-heading2 {
+      font-size: 2vh;
+      margin-bottom: 1vh;
+      color: #8a8a8a;
+      font-weight: bold;
+    }
+    .form {
+      display: flex;
+      align-items: center;
+    }
+    .form p {
+      margin-right: 1vh;
+      font-size: 1.8vh;
+    }
+    .form input {
+      margin-right: 1vh;
+      padding: 0.5vh;
+    }
+    .form button {
+      padding: 0.4vh 1vw;
+      font-size: 1.5vh;
+    }
+  </style>
+  <script>
+    function redirectToWeather() {
+        window.location.href = "./weather";
+    }
+  </script>
+</head>
+<body>
+  <div class="logo">
+    <a href="../main">
+      <img src="{{ url_for('static', filename='images/SeoFulL_logo_1.png') }}" alt="SeoFulL_로고_1" height=300>
+    </a>
+  </div>
+  <div class="sub-heading1">
+    48시간 이내 서울의 날씨 예보와 예측 생활 인구수을 알아보세요!
+  </div>
+  <div class="sub-heading2">
+    생활인구란 통신데이터로 특정 시점에 개인이 위치한 지역을 집계한 ‘현주인구’를 말합니다.
+  </div>
+
+  <div class="form">
+    <p>0~47(시간)을 작성해주세요:</p>
+    <input type="text" id="hour" onkeydown="if(event.keyCode===13) submitForm()" />
+    <button onclick="submitForm()">제출</button>
+  </div>
+
+  <div id="button" style="margin-top: 2vh">
+    <button onclick="redirectToWeather()" style = "height: 4vh; font-size: 0.8vw;">전체 날씨 보기</button>
+  </div>
+
+  <script>
+    function submitForm() {
+      var hour = document.getElementById('hour').value;
+      if (validateHour(hour)) {
+        var url = "./congestion/" + hour;
+        window.location.href = url;
+      } else {
+        alert("0~47 사이의 정수를 입력해주세요!");
+      }
+    }
+
+    function validateHour(hour) {
+      var parsedHour = parseInt(hour);
+      return !isNaN(parsedHour) && parsedHour >= 0 && parsedHour <= 47;
+    }
+  </script>
+</body>
+</html>

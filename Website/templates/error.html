@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SeoFulL</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color : #C6E2FF;
+    }
+    .logo {
+      margin-bottom: 3vh;
+    }
+    .error-message1 {
+      font-size: 3.3vh;
+      color: red;
+      margin-top: 2vh;
+      text-align: center;
+      font-weight: bold;
+    }
+    .error-message2 {
+      font-size: 2vh;
+      color: gray;
+      margin-top: 2vh;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <a href="../main">
+      <img src="{{ url_for('static', filename='images/SeoFulL_logo_1.png') }}" alt="SeoFulL_로고_1" height=300>
+    </a>
+  </div>
+  <div class="error-message1">
+    죄송합니다. 해당 페이지를 찾을 수 없습니다.
+  </div>
+  <div class="error-message2">
+    로고를 누르면 홈페이지로 이동합니다.
+  </div>
+</body>
+</html>
